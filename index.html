@@ -100,6 +100,16 @@ input,textarea,select{background:#000;border-color:#2a2a33}
 #sp{background:#000;border-top:1px solid #23232b}
 .p,.sk{border:1px solid #16161b}
 @media(orientation:landscape) and (max-height:520px){.cc{width:min(70vw,60vh*1.778)}}
+.tab{height:36px;padding:0 14px;margin-right:8px;border:1px solid #4a4a52;border-radius:18px;font-weight:600;font-size:14px;color:#fff}
+.tab.on{background:#fff;color:#000;border-color:#fff}
+.chips button{border-color:#3a3a42;color:#fff;font-weight:500}
+h2{font-size:18px}
+.b{height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:8px;background:#2b2b30;color:#fff}
+.b.p1{background:#fff;color:#000}
+.sa .go{background:#fff;color:#000}
+.ct b{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.cb{display:flex;gap:8px;margin-top:10px}.cb .b{flex:none;height:40px;padding:0 16px;font-size:14px}
+.cc{border-radius:14px}
 </style>
 </head>
 <body>
@@ -123,6 +133,8 @@ const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>
 const B=u=>u.trim().replace(/^stremio:\/\//,'https://').replace(/\/manifest\.json.*$/,'').replace(/\/+$/,'');
 const K=x=>x.type+'|'+x.id;
 async function G(u,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||15000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}catch(e){throw new Error(e.name=='AbortError'?'zaman aşımı':/fetch|Load failed/i.test(e.message)?'bağlanılamadı':e.message)}finally{clearTimeout(t)}}
+const SV=p=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${p}</svg>`,IP=SV('<path d="M7 4l13 8-13 8z"/>'),IA=SV('<path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/>'),IK=SV('<path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/>'),ID=SV('<path d="M5 8l7 8 7-8z"/>');
+function togF(x){const k=K(x),i=fav.findIndex(h=>K(h)==k);if(i<0)fav.unshift(x);else fav.splice(i,1);W('fav',fav);draw();return i<0}
 function toast(t){const e=$('#tt');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',1800)}
 const on=s=>$(s).classList.contains('on');
 let dstack=[];
@@ -146,7 +158,7 @@ const s=$('#s'+i);if(s)s.innerHTML=r.items.length?strip(r.items):'<p class="m">B
 catch(e){$('#rows').innerHTML='<p class="m">Listeler alınamadı: '+E(e.message)+'. Ayarlar’dan bağlantıyı kontrol et.</p>'}}
 let carT='';
 function first(){if(carT==tab)return;const r=rows.find(r=>r.c.type==tab&&r.items&&r.items.length);if(!r){$('#hero').innerHTML='';return}carT=tab;const a=r.items.slice(0,6);a.forEach(x=>reg[K(x)]=x);
-$('#hero').innerHTML=a.map(x=>`<button class="cc" data-k="${E(K(x))}" aria-label="${E(x.name)}" style="background-image:url('${E(x.background||x.poster)}')"><span class="ct"><b>${E(x.name)}</b><small>${E(x.releaseInfo||x.year||'')}${x.imdbRating?' · IMDb '+String(x.imdbRating).replace('.',','):''}</small></span></button>`).join('');
+$('#hero').innerHTML=a.map(x=>{const k=E(K(x)),isF=fav.some(h=>K(h)==K(x));return`<div class="cc" data-k="${k}" style="background-image:url('${E(x.background||x.poster)}')"><span class="ct"><b>${E(x.name)}</b><small>${E((x.type=='movie'?'Film':'Dizi')+(x.releaseInfo||x.year?' · '+(x.releaseInfo||x.year):''))}${x.imdbRating?' · IMDb '+String(x.imdbRating).replace('.',','):''}</small><span class="cb"><button class="b p1" data-cp="${k}">${IP} Oynat</button><button class="b" data-cf="${k}">${isF?IK+' Listemde':IA+' Listem'}</button></span></span></div>`}).join('');
 a.forEach(x=>info(x).then(d=>{if(d&&d.bd){const e=document.querySelector('.cc[data-k="'+CSS.escape(K(x))+'"]');if(e)e.style.backgroundImage="url('https://image.tmdb.org/t/p/w780"+d.bd+"')"}}))}
 function allv(i){const r=rows[i];sheet('<h3>'+E(r.c.name)+'</h3><div class="strip" style="flex-wrap:wrap;overflow:visible;padding:0">'+strip(r.items||[])+'</div>',1);$('#shc').onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)}}
 const rate=(x,d)=>{const v=d&&d.imdb||x.imdbRating;if(v)return['IMDb',v];if(d&&d.r)return['TMDB',d.r.toFixed(1)]}
@@ -163,7 +175,7 @@ async function renderD(k){const x=reg[k],el=$('#dt');if(!x)return;el.classList.a
 const ok=()=>dstack[dstack.length-1]==k;
 const paint=(d,f)=>{const bg=d&&d.bd?'https://image.tmdb.org/t/p/w1280'+d.bd:(x.background||x.poster||''),r=rate(x,d)||[],isF=fav.some(h=>K(h)==k),run=f?fmt(x.type=='movie'?f.runtime:(f.episode_run_time||[])[0]):'',g=f?(f.genres||[]).slice(0,3).map(z=>z.name).join(', '):'',c=f&&f.credits?f.credits.cast.slice(0,8).map(z=>z.name).join(', '):'';
 const ovt=(d&&d.ov)||x.description||'Özet bulunamadı.';
-el.innerHTML=`<div class="dh" style="background-image:url('${E(bg)}')"><button class="bk" onclick="history.back()" aria-label="Geri">‹</button><div class="di"><h1>${E(x.name)}</h1><div class="meta">${r[1]?`<span class="pill${r[0]=='TMDB'?' t':''}">${r[0]} ${String(r[1]).replace('.',',')}</span>`:''}<span>${E((d&&d.y)||x.releaseInfo||x.year||'')}</span>${run?'<span>'+run+'</span>':''}${g?'<span>'+E(g)+'</span>':''}</div><p class="ov">${E(ovt)}</p><div class="bt"><button class="b p1" id="dp">${x.type=='movie'?'▶ Oynat':'▼ Bölümler'}</button><button class="b" id="df">${isF?'♥ Listemde':'♡ Listeme ekle'}</button></div></div></div><div class="db">${ovt.length>170?'<h2 class="h">Özet</h2><p class="ovf">'+E(ovt)+'</p>':''}${c?'<p class="cast">Oyuncular: '+E(c)+'</p>':''}${x.type=='series'?'<h2 class="h">Bölümler</h2><div id="de"></div>':''}<div id="dr"></div></div>`;
+el.innerHTML=`<div class="dh" style="background-image:url('${E(bg)}')"><button class="bk" onclick="history.back()" aria-label="Geri">‹</button><div class="di"><h1>${E(x.name)}</h1><div class="meta">${r[1]?`<span class="pill${r[0]=='TMDB'?' t':''}">${r[0]} ${String(r[1]).replace('.',',')}</span>`:''}<span>${E((d&&d.y)||x.releaseInfo||x.year||'')}</span>${run?'<span>'+run+'</span>':''}${g?'<span>'+E(g)+'</span>':''}</div><p class="ov">${E(ovt)}</p><div class="bt"><button class="b p1" id="dp">${x.type=='movie'?IP+' Oynat':ID+' Bölümler'}</button><button class="b" id="df">${isF?IK+' Listemde':IA+' Listeme ekle'}</button></div></div></div><div class="db">${ovt.length>170?'<h2 class="h">Özet</h2><p class="ovf">'+E(ovt)+'</p>':''}${c?'<p class="cast">Oyuncular: '+E(c)+'</p>':''}${x.type=='series'?'<h2 class="h">Bölümler</h2><div id="de"></div>':''}<div id="dr"></div></div>`;
 if(f&&f.recommendations&&f.recommendations.results.length){rc=f.recommendations.results.filter(z=>z.poster_path).slice(0,15);$('#dr').innerHTML='<h2 style="margin:12px 0 8px">Benzer yapımlar</h2><div class="strip" style="padding:0">'+rc.map((z,i)=>`<button class="p" data-r="${i}"><img loading="lazy" src="https://image.tmdb.org/t/p/w342${z.poster_path}" alt="${E(z.title||z.name)}"></button>`).join('')+'</div>'}};
 paint(ic[k]);const d=await info(x);if(!ok())return;paint(d);
 if(d&&d.tid){const f=await full(x,d);if(!ok()||!f)return;paint(d,f);if(x.type=='series')loadEps(x,d,f)}
@@ -178,7 +190,7 @@ if(ep)src(x.id+':'+ep.dataset.n+':'+ep.dataset.e,'series',x,x.name+' · S'+ep.da
 else if(c&&window.showS)showS(c.dataset.s);
 else if(r)rec(rc[r.dataset.r]);
 else if(e.target.closest('#dp')){if(x.type=='movie')src(x.id,'movie',x,x.name);else{const z=$('#de');if(z)z.scrollIntoView({behavior:'smooth'})}}
-else if(f){const i=fav.findIndex(h=>K(h)==k);if(i<0)fav.unshift(x);else fav.splice(i,1);W('fav',fav);f.textContent=i<0?'♥ Listemde':'♡ Listeme ekle';draw()}};
+else if(f){f.innerHTML=togF(x)?IK+' Listemde':IA+' Listeme ekle'}};
 function addH(x){const o=hist.find(h=>K(h)==K(x));hist=hist.filter(h=>K(h)!=K(x));hist.unshift(Object.assign({},x,o?{t:o.t,d:o.d}:{}));hist=hist.slice(0,20);W('hist',hist)}
 function parse(s,nm){const t=((s.title||'')+'\n'+(s.description||'')).split('\n').map(z=>z.trim()).filter(Boolean),a=(s.name||'')+' '+t.join(' '),z=a.match(/(\d+(?:[.,]\d+)?)\s?(GB|MB)/i);
 return{url:s.url,nm,r:/2160|4k|uhd/i.test(a)?4:/1080/.test(a)?3:/720/.test(a)?2:1,sz:z?parseFloat(z[1].replace(',','.'))*(/gb/i.test(z[2])?1024:1):0,ok:/\+\]|⚡/.test(s.name||''),a:t[0]||s.name||'Kaynak',b:t.slice(1).join(' · ').slice(0,90)}}
@@ -238,8 +250,8 @@ $('#q').oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{const q=e.target.valu
 const r=await Promise.all(['movie','series'].map(ty=>G('https://v3-cinemeta.strem.io/catalog/'+ty+'/top/search='+encodeURIComponent(q)+'.json').catch(()=>({metas:[]}))));
 const m=[].concat(r[0].metas||[],r[1].metas||[]).filter(x=>x.poster).slice(0,30);$('#qr').innerHTML=m.length?strip(m):'<p class="m">Sonuç yok.</p>'},400)};
 $('#shc').onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)};$('#q').focus()}
-document.addEventListener('click',e=>{const p=e.target.closest('#rows .p'),g=e.target.closest('[data-g]'),t=e.target.closest('.tab'),al=e.target.closest('[data-all]'),cc=e.target.closest('.cc');
-if(p)openD(p.dataset.k);else if(al)allv(+al.dataset.all);else if(cc)openD(cc.dataset.k);
+document.addEventListener('click',e=>{const p=e.target.closest('#rows .p'),g=e.target.closest('[data-g]'),t=e.target.closest('.tab'),al=e.target.closest('[data-all]'),cc=e.target.closest('.cc'),cp=e.target.closest('[data-cp]'),cf=e.target.closest('[data-cf]');
+if(p)openD(p.dataset.k);else if(al)allv(+al.dataset.all);else if(cp){const x=reg[cp.dataset.cp];if(x.type=='movie')src(x.id,'movie',x,x.name);else openD(K(x))}else if(cf){cf.innerHTML=togF(reg[cf.dataset.cf])?IK+' Listemde':IA+' Listem'}else if(cc)openD(cc.dataset.k);
 else if(g){const s=$('#r'+g.dataset.g);if(s)s.scrollIntoView({behavior:'smooth',block:'start'})}
 else if(t){tab=t.dataset.t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b===t));draw();cur=null;first()}});
 $('#bs').onclick=search;$('#bg').onclick=settings;
