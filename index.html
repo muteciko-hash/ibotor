@@ -110,6 +110,9 @@ h2{font-size:18px}
 .ct b{font-size:22px;font-weight:800;letter-spacing:-.01em}
 .cb{display:flex;gap:8px;margin-top:10px}.cb .b{flex:none;height:40px;padding:0 16px;font-size:14px}
 .cc{border-radius:14px}
+#sb2 button{margin-left:10px;height:32px;padding:0 12px;border:1px solid #3a3a42;border-radius:8px;color:#fff;font-size:13px}
+.pk{display:block;width:100%;min-height:44px;text-align:left;padding:0 12px;border:1px solid #23232b;border-radius:10px;margin-bottom:6px}
+#sc{margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -127,7 +130,7 @@ h2{font-size:18px}
 const $=s=>document.querySelector(s),L=localStorage;
 const J=(k,d)=>{try{return JSON.parse(L.getItem(k))||d}catch(e){return d}};
 const W=(k,v)=>{try{L.setItem(k,JSON.stringify(v))}catch(e){}};
-let cfg=Object.assign({tmdb:'',omdb:'',cat:'',src:'',sub:'',player:'vlc'},J('cfg',{})),hist=J('hist',[]),fav=J('fav',[]),tab='movie',rows=[],cur=null;
+let cfg=Object.assign({tmdb:'',omdb:'',cat:'',src:'',sub:'',vsub:'1',player:'vlc'},J('cfg',{})),hist=J('hist',[]),fav=J('fav',[]),tab='movie',rows=[],cur=null;
 const reg={},ic={},RL=['','SD','720p','1080p','4K'];
 const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const B=u=>u.trim().replace(/^stremio:\/\//,'https://').replace(/\/manifest\.json.*$/,'').replace(/\/+$/,'');
@@ -196,11 +199,17 @@ function parse(s,nm){const t=((s.title||'')+'\n'+(s.description||'')).split('\n'
 return{url:s.url,nm,r:/2160|4k|uhd/i.test(a)?4:/1080/.test(a)?3:/720/.test(a)?2:1,sz:z?parseFloat(z[1].replace(',','.'))*(/gb/i.test(z[2])?1024:1):0,ok:/\+\]|⚡/.test(s.name||''),a:t[0]||s.name||'Kaynak',b:t.slice(1).join(' · ').slice(0,90)}}
 const cmp=(a,b)=>b.ok-a.ok||b.r-a.r||b.sz-a.sz;
 function list(a){$('#sl').innerHTML=a.slice(0,40).map((s,i)=>`<div class="src" data-i="${i}"><div class="si"><b>${E(s.a)}</b><small>${E(s.b)}</small></div><div class="sb"><span class="bd">${RL[s.r]}</span>${s.ok?'<span class="bd g">Hazır</span>':''}<span class="mt">${E(s.nm)}${s.sz?' · '+(s.sz>=1024?(s.sz/1024).toFixed(1)+' GB':Math.round(s.sz)+' MB'):''}</span></div><div class="sa"><button class="go" data-a="p">▶ Oynat</button><button data-a="w">Web</button><button data-a="c">Kopyala</button></div></div>`).join('')||'<p class="m">Bu süzgeçte kaynak yok.</p>'}
-const P={vlc:u=>'vlc-x-callback://x-callback-url/stream?url='+encodeURIComponent(u),infuse:u=>'infuse://x-callback-url/play?url='+encodeURIComponent(u),nplayer:u=>'nplayer-'+u};
+const P={vlc:(u,sb)=>'vlc-x-callback://x-callback-url/stream?url='+encodeURIComponent(u)+(sb?'&sub='+encodeURIComponent(sb):''),infuse:(u,sb)=>'infuse://x-callback-url/play?url='+encodeURIComponent(u)+(sb?'&sub='+encodeURIComponent(sb):''),nplayer:u=>'nplayer-'+u};
 const FL=[['Hepsi',()=>1],['4K',s=>s.r==4],['1080p',s=>s.r==3],['20 GB altı',s=>s.sz>0&&s.sz<20480]],AC=' style="background:#3a2a0a;color:#f5a524"';
-function src(id,type,x,label){addH(x);sheet('<h3>'+E(label)+'</h3><div class="chips" id="st" style="padding:0;margin:0 0 6px"></div><div class="chips" id="sf" style="padding:0;margin:0 0 10px"></div><div id="sl"></div><p class="m" id="sm">Kaynaklar aranıyor…</p>');
+function src(id,type,x,label){addH(x);sheet('<h3>'+E(label)+'</h3><p class="m" id="sb2" style="margin:0 0 6px;padding:0"></p><div id="sc"></div><div class="chips" id="st" style="padding:0;margin:0 0 6px"></div><div class="chips" id="sf" style="padding:0;margin:0 0 10px"></div><div id="sl"></div><p class="m" id="sm">Kaynaklar aranıyor…</p>');
 const us=cfg.src.split(/\s+/).filter(Boolean).map(B);if(!us.length){$('#sm').textContent='Ayarlar’dan en az bir kaynak eklentisi ekle.';return}
 const names=us.map(u=>{try{const h=new URL(u).hostname.split('.')[0];return h[0].toUpperCase()+h.slice(1)}catch(e){return'Eklenti'}});
+let vs=null,sl=[],vn='';
+const sbr=()=>{const e=$('#sb2');if(e)e.innerHTML=sl.length?'Altyazı: <b>'+E(vn||'Yok')+'</b><button data-sc="1">Değiştir</button>':'Altyazı bulunamadı'};
+const pickS=z=>{vs=z?z.url:null;vn=z?ln(z.lang):'';sbr()};
+const lst=()=>{const c=$('#sc');if(!c)return;if(c.innerHTML){c.innerHTML='';return}c.innerHTML='<button class="pk" data-sj="-1">Altyazısız</button>'+sl.slice(0,40).map((z,i)=>`<button class="pk" data-sj="${i}">${E(ln(z.lang))} · ${i+1}</button>`).join('')};
+const sel=i=>{pickS(i<0?null:sl[i]);$('#sc').innerHTML=''};
+if(cfg.vsub!='0'&&cfg.sub)getSubs(type,id).then(r=>{sl=r;pickS(r.find(z=>isT(z.lang))||r.find(z=>isE(z.lang))||null)});
 let all=[],err=[],n=0,tb=0,fl=0,vis=[];
 const rd=()=>{$('#st').innerHTML=['Tümü'].concat(names).map((t,i)=>`<button data-q="${i}"${i==tb?AC:''}>${E(t)} (${i?all.filter(s=>s.nm==names[i-1]).length:all.length})</button>`).join('');
 $('#sf').innerHTML=FL.map((f,i)=>`<button data-f="${i}"${i==fl?AC:''}>${f[0]}</button>`).join('');
@@ -208,19 +217,19 @@ vis=all.filter(s=>(!tb||s.nm==names[tb-1])&&FL[fl][1](s)).sort(cmp);list(vis)};
 us.forEach(async(u,i)=>{try{const d=await G(u+'/stream/'+type+'/'+id+'.json',25000);(d.streams||[]).forEach(s=>{if(s.url)all.push(parse(s,names[i]))})}catch(e){err.push(names[i]+': '+e.message)}
 rd();if(++n==us.length)$('#sm').innerHTML=(all.length?'':'Kaynak bulunamadı. ')+err.map(E).join('<br>')});
 rd();
-$('#shc').onclick=e=>{const t=e.target.closest('[data-q]'),f=e.target.closest('[data-f]'),r=e.target.closest('[data-i]'),a=e.target.closest('[data-a]');
-if(t){tb=+t.dataset.q;rd()}else if(f){fl=+f.dataset.f;rd()}else if(a&&r){const s=vis[r.dataset.i];
-if(a.dataset.a=='w')web(s.url,x,s.a,type,id);else if(a.dataset.a=='c')navigator.clipboard.writeText(s.url).then(()=>toast('Kopyalandı'),()=>prompt('Bağlantıyı kopyala',s.url));else location.href=P[cfg.player](s.url)}}}
+$('#shc').onclick=e=>{const t=e.target.closest('[data-q]'),f=e.target.closest('[data-f]'),r=e.target.closest('[data-i]'),a=e.target.closest('[data-a]'),c=e.target.closest('[data-sc]'),j=e.target.closest('[data-sj]');
+if(c)lst();else if(j)sel(+j.dataset.sj);else if(t){tb=+t.dataset.q;rd()}else if(f){fl=+f.dataset.f;rd()}else if(a&&r){const s=vis[r.dataset.i];
+if(a.dataset.a=='w')web(s.url,x,s.a,type,id);else if(a.dataset.a=='c')navigator.clipboard.writeText(s.url).then(()=>toast('Kopyalandı'),()=>prompt('Bağlantıyı kopyala',s.url));else location.href=P[cfg.player](s.url,vs)}}}
 const LN={tur:'Türkçe',eng:'İngilizce',ger:'Almanca',fre:'Fransızca',spa:'İspanyolca',ita:'İtalyanca',rus:'Rusça',ara:'Arapça',por:'Portekizce',pol:'Lehçe',dut:'Felemenkçe'},ln=c=>LN[String(c).toLowerCase()]||String(c||'?').toUpperCase(),isT=c=>/^tur?$/i.test(c||''),isE=c=>/^en/i.test(c||'');
 let subs=[];
 async function vtt(u){const b=await(await fetch(u)).arrayBuffer();let t=new TextDecoder('utf-8').decode(b);if(t.includes('\ufffd'))t=new TextDecoder('windows-1254').decode(b);t=t.replace(/\r/g,'').replace(/^\uFEFF/,'');return t.startsWith('WEBVTT')?t:'WEBVTT\n\n'+t.replace(/(\d+:\d+:\d+),(\d+)/g,'$1.$2')}
 async function addSub(s){try{const u=URL.createObjectURL(new Blob([await vtt(s.url)],{type:'text/vtt'})),v=$('#v');[...v.textTracks].forEach(t=>t.mode='disabled');const t=document.createElement('track');t.kind='subtitles';t.label=ln(s.lang);t.srclang=(s.lang||'').slice(0,2);t.src=u;t.default=true;v.appendChild(t);t.track.mode='showing';toast(ln(s.lang)+' altyazı açıldı')}catch(e){toast('Altyazı alınamadı')}}
-async function getSubs(type,id,file){subs=[];const us=cfg.sub.split(/\s+/).filter(Boolean).map(B);await Promise.all(us.map(async u=>{try{let d;try{d=await G(u+'/subtitles/'+type+'/'+id+'/filename='+encodeURIComponent(file)+'.json')}catch(e){d=await G(u+'/subtitles/'+type+'/'+id+'.json')}(d.subtitles||[]).forEach(s=>s.url&&subs.push(s))}catch(e){}}));subs.sort((a,b)=>isT(b.lang)-isT(a.lang)||isE(b.lang)-isE(a.lang))}
+async function getSubs(type,id,file){const out=[],us=cfg.sub.split(/\s+/).filter(Boolean).map(B);await Promise.all(us.map(async u=>{try{let d;try{if(!file)throw 0;d=await G(u+'/subtitles/'+type+'/'+id+'/filename='+encodeURIComponent(file)+'.json')}catch(e){d=await G(u+'/subtitles/'+type+'/'+id+'.json')}(d.subtitles||[]).forEach(s=>s.url&&out.push(s))}catch(e){}}));out.sort((a,b)=>isT(b.lang)-isT(a.lang)||isE(b.lang)-isE(a.lang));return out}
 function web(u,x,file,type,id){const v=$('#v'),o=hist.find(h=>K(h)==K(x));hideS();history.replaceState({},'');$('#pe').textContent='';$('#sp').style.display='none';v.querySelectorAll('track').forEach(t=>t.remove());$('#pl').classList.add('on');v.src=u;
 v.onloadedmetadata=()=>{if(x.type=='movie'&&o&&o.t>10&&o.t<v.duration-30)v.currentTime=o.t};
 v.onerror=()=>$('#pe').textContent='Bu dosya Safari’de açılmadı. Başka bir kaynak dene ya da VLC’de aç.';
 let last=0;v.ontimeupdate=()=>{if(x.type!='movie'||Date.now()-last<5000)return;last=Date.now();const h=hist.find(h=>K(h)==K(x));if(h){h.t=v.currentTime;h.d=v.duration;W('hist',hist)}};v.play().catch(()=>{});
-subs=[];getSubs(type,id,file).then(()=>{const t=subs.find(s=>isT(s.lang));if(t&&on('#pl'))addSub(t)})}
+subs=[];getSubs(type,id,file).then(r=>{subs=r;const t=subs.find(s=>isT(s.lang));if(t&&on('#pl'))addSub(t)})}
 $('#sb').onclick=()=>{const p=$('#sp');if(p.style.display=='block'){p.style.display='none';return}
 if(!cfg.sub){toast('Ayarlar’dan altyazı eklentisi ekle');return}
 if(!subs.length){toast('Altyazı bulunamadı');return}
@@ -234,9 +243,10 @@ function settings(){sheet(`<h3>Ayarlar</h3>
 <label>OMDb anahtarı (IMDb puanı için, isteğe bağlı)<input id="f3" value="${E(cfg.omdb)}" autocapitalize="off" spellcheck="false"></label>
 <label>Kaynak eklentileri (her satıra bir bağlantı)<textarea id="f4" rows="5" placeholder="Torrentio, Comet, Sootio bağlantıları" autocapitalize="off" spellcheck="false">${E(cfg.src)}</textarea></label>
 <label>Altyazı eklentileri (OpenSubtitles gibi, her satıra bir bağlantı)<textarea id="f6" rows="3" autocapitalize="off" spellcheck="false">${E(cfg.sub)}</textarea></label>
+<label>Oynatıcıya altyazı gönder (VLC ve Infuse, altyazı eklentisi ekliyse)<select id="f7"><option value="1"${cfg.vsub!='0'?' selected':''}>Açık</option><option value="0"${cfg.vsub=='0'?' selected':''}>Kapalı</option></select></label>
 <label>Oynatıcı<select id="f5">${[['vlc','VLC'],['infuse','Infuse'],['nplayer','nPlayer']].map(p=>`<option value="${p[0]}"${cfg.player==p[0]?' selected':''}>${p[1]}</option>`).join('')}</select></label>
 <div class="bt"><button class="b p1" id="sv">Kaydet</button><button class="b" id="ts">Test et</button></div><div id="tr" class="m"></div><button class="b" id="cl" style="width:100%;margin-top:8px">Tüm bilgileri sil</button>`,1);
-const rd=()=>{cfg={cat:$('#f1').value.trim(),tmdb:$('#f2').value.trim(),omdb:$('#f3').value.trim(),src:$('#f4').value.trim(),sub:$('#f6').value.trim(),player:$('#f5').value};W('cfg',cfg)};
+const rd=()=>{cfg={cat:$('#f1').value.trim(),tmdb:$('#f2').value.trim(),omdb:$('#f3').value.trim(),src:$('#f4').value.trim(),sub:$('#f6').value.trim(),vsub:$('#f7').value,player:$('#f5').value};W('cfg',cfg)};
 $('#sv').onclick=()=>{rd();closeS();cur=null;load()};
 $('#ts').onclick=async()=>{rd();const o=$('#tr');o.innerHTML='Test ediliyor…';let h='';
 const t=async(n,f)=>{try{h+='✓ '+E(n)+(await f()||'')+'<br>'}catch(e){h+='✕ '+E(n)+': '+E(e.message)+'<br>'}o.innerHTML=h};
