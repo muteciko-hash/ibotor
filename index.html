@@ -81,13 +81,32 @@ input,textarea,select{display:block;width:100%;margin-top:4px;padding:12px;borde
 .bk{position:absolute;z-index:1;left:8px;top:calc(env(safe-area-inset-top) + 8px);width:44px;height:44px;border-radius:22px;background:rgba(0,0,0,.55);font-size:28px;line-height:1}
 .db{position:relative;margin-top:-56px;padding:0 16px calc(env(safe-area-inset-bottom) + 30px);display:flex;flex-direction:column;gap:12px}
 .cast{margin:0;color:var(--mut);font-size:13px}
+.dh{display:flex;align-items:flex-end;height:clamp(340px,56vh,500px)}
+.di{position:relative;z-index:1;width:100%;padding:0 16px 16px;display:flex;flex-direction:column;gap:8px}
+.db{margin-top:0;padding-top:8px}
+.h{margin:12px 0 6px;font-size:16px}.ovf{margin:0;color:#e1e3e8;font-size:14px}
+@media(orientation:landscape) and (max-height:520px){.dh{height:100vh;height:100dvh}.dh:after{background:linear-gradient(to right,rgba(0,0,0,.88),rgba(0,0,0,0) 70%),linear-gradient(to top,#000 2%,rgba(0,0,0,0) 40%)}.di{width:62%;padding:0 24px 24px calc(env(safe-area-inset-left) + 24px)}.db{padding:16px 24px 30px}.di .bt .b{flex:none;padding:0 22px}}
+#hero{margin-top:0;min-height:0;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;padding:4px 16px 0;scrollbar-width:none;background:none;align-items:stretch}
+#hero::-webkit-scrollbar{display:none}#hero:after{display:none}
+.cc{flex:none;position:relative;width:min(86vw,640px);aspect-ratio:16/9;border-radius:16px;scroll-snap-align:center;background:#0a0a0d center/cover;overflow:hidden;text-align:left;display:flex;align-items:flex-end;border:1px solid #1c1c22}
+.cc:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92),rgba(0,0,0,0) 65%)}
+.ct{position:relative;z-index:1;padding:14px;display:flex;flex-direction:column;gap:2px}.ct b{font-size:20px;line-height:1.15}.ct small{color:#d5d8de;font-size:13px}
+.sh{display:flex;justify-content:space-between;align-items:center}.sh button{color:var(--mut);font-size:13px;min-height:32px;padding:0 4px}
+#shc{background:#000;border-top:1px solid #23232b}
+.src,.ep{background:#000;border:1px solid #23232b}
+.chips button{background:#000;border:1px solid #23232b}
+input,textarea,select{background:#000;border-color:#2a2a33}
+.x{background:#000;border:1px solid #2a2a33}
+#sp{background:#000;border-top:1px solid #23232b}
+.p,.sk{border:1px solid #16161b}
+@media(orientation:landscape) and (max-height:520px){.cc{width:min(70vw,60vh*1.778)}}
 </style>
 </head>
 <body>
 <div id="top"><b>TorBox</b><button class="tab on" data-t="movie">Film</button><button class="tab" data-t="series">Dizi</button><span style="flex:1"></span>
 <button class="ib" id="bs" aria-label="Ara"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
 <button class="ib" id="bg" aria-label="Ayarlar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button></div>
-<header id="hero"><div id="hc"><p class="ov">Başlamak için Ayarlar’dan bağlantıları ekle.</p></div></header>
+<header id="hero" aria-label="Öne çıkanlar"></header>
 <nav class="chips" id="chips" aria-label="Listeler"></nav>
 <main id="rows"></main>
 <div id="dt"></div>
@@ -116,28 +135,26 @@ addEventListener('popstate',()=>{if(on('#pl'))stopW();else if(on('#sh'))hideS();
 function strip(a){return a.map(x=>{reg[K(x)]=x;return`<button class="p${cur&&K(cur)==K(x)?' sel':''}" data-k="${E(K(x))}" aria-label="${E(x.name)}"><img loading="lazy" src="${E(x.poster)}" alt="${E(x.name)}">${x.d?`<i class="pg" style="width:${Math.min(100,x.t/x.d*100)}%"></i>`:''}</button>`}).join('')}
 function draw(){const v=rows.map((r,i)=>[r,i]).filter(a=>a[0].c.type==tab),sec=(t,a)=>a.length?`<section><h2>${t}</h2><div class="strip">${strip(a)}</div></section>`:'';
 $('#chips').innerHTML=v.map(a=>`<button data-g="${a[1]}">${E(a[0].c.name)}</button>`).join('');
-$('#rows').innerHTML=sec('Devam et',hist.filter(x=>x.type==tab))+sec('Listem',fav.filter(x=>x.type==tab))+v.map(a=>`<section id="r${a[1]}"><h2>${E(a[0].c.name)}</h2><div class="strip" id="s${a[1]}">${a[0].items?strip(a[0].items):'<i class="sk"></i>'.repeat(5)}</div></section>`).join('')||'<p class="m">Liste yok.</p>'}
+$('#rows').innerHTML=sec('Devam et',hist.filter(x=>x.type==tab))+sec('Listem',fav.filter(x=>x.type==tab))+v.map(a=>`<section id="r${a[1]}"><h2 class="sh">${E(a[0].c.name)}<button data-all="${a[1]}">Tümü ›</button></h2><div class="strip" id="s${a[1]}">${a[0].items?strip(a[0].items):'<i class="sk"></i>'.repeat(5)}</div></section>`).join('')||'<p class="m">Liste yok.</p>'}
 async function load(){if(!cfg.cat){settings();return}
 $('#rows').innerHTML='<p class="m">Listeler yükleniyor…</p>';
-try{const b=B(cfg.cat),m=await G(b+'/manifest.json');
+carT='';try{const b=B(cfg.cat),m=await G(b+'/manifest.json');
 rows=(m.catalogs||[]).filter(c=>['movie','series'].includes(c.type)&&!(c.extra||[]).some(e=>e.isRequired)&&!(c.extraRequired||[]).length).slice(0,20).map(c=>({c,items:null}));
 draw();first();
 rows.forEach(async(r,i)=>{try{const d=await G(b+'/catalog/'+r.c.type+'/'+encodeURIComponent(r.c.id)+'.json');r.items=(d.metas||[]).filter(x=>x.poster)}catch(e){r.items=[]}
 const s=$('#s'+i);if(s)s.innerHTML=r.items.length?strip(r.items):'<p class="m">Boş</p>';first()})}
 catch(e){$('#rows').innerHTML='<p class="m">Listeler alınamadı: '+E(e.message)+'. Ayarlar’dan bağlantıyı kontrol et.</p>'}}
-function first(){if(cur&&cur.type==tab)return;const r=rows.find(r=>r.c.type==tab&&r.items&&r.items.length);if(r){const x=r.items[0];reg[K(x)]=x;pick(K(x),1)}}
+let carT='';
+function first(){if(carT==tab)return;const r=rows.find(r=>r.c.type==tab&&r.items&&r.items.length);if(!r){$('#hero').innerHTML='';return}carT=tab;const a=r.items.slice(0,6);a.forEach(x=>reg[K(x)]=x);
+$('#hero').innerHTML=a.map(x=>`<button class="cc" data-k="${E(K(x))}" aria-label="${E(x.name)}" style="background-image:url('${E(x.background||x.poster)}')"><span class="ct"><b>${E(x.name)}</b><small>${E(x.releaseInfo||x.year||'')}${x.imdbRating?' · IMDb '+String(x.imdbRating).replace('.',','):''}</small></span></button>`).join('');
+a.forEach(x=>info(x).then(d=>{if(d&&d.bd){const e=document.querySelector('.cc[data-k="'+CSS.escape(K(x))+'"]');if(e)e.style.backgroundImage="url('https://image.tmdb.org/t/p/w780"+d.bd+"')"}}))}
+function allv(i){const r=rows[i];sheet('<h3>'+E(r.c.name)+'</h3><div class="strip" style="flex-wrap:wrap;overflow:visible;padding:0">'+strip(r.items||[])+'</div>',1);$('#shc').onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)}}
 const rate=(x,d)=>{const v=d&&d.imdb||x.imdbRating;if(v)return['IMDb',v];if(d&&d.r)return['TMDB',d.r.toFixed(1)]}
 async function info(x){const k=K(x);if(k in ic)return ic[k];let d=null;
 if(cfg.tmdb&&/^tt/.test(x.id)){try{const f=await G('https://api.themoviedb.org/3/find/'+x.id.split(':')[0]+'?external_source=imdb_id&language=tr-TR&api_key='+cfg.tmdb),m=f.movie_results[0]||f.tv_results[0];
 if(m){d={tt:f.movie_results[0]?'movie':'tv',tid:m.id,ov:m.overview,r:m.vote_average,y:(m.release_date||m.first_air_date||'').slice(0,4),bd:m.backdrop_path};
 if(cfg.omdb){try{const o=await G('https://www.omdbapi.com/?i='+x.id+'&apikey='+cfg.omdb);if(o.imdbRating&&o.imdbRating!='N/A')d.imdb=o.imdbRating}catch(e){}}}}catch(e){}}
 ic[k]=d;return d}
-function hero(x,d){const r=rate(x,d)||[],bg=d&&d.bd?'https://image.tmdb.org/t/p/w780'+d.bd:(x.background||x.poster||'');
-$('#hero').style.backgroundImage=bg?`url("${bg}")`:'none';
-$('#hc').innerHTML=`<h1>${E(x.name)}</h1><div class="meta">${r[1]?`<span class="pill${r[0]=='TMDB'?' t':''}">${r[0]} ${String(r[1]).replace('.',',')}</span>`:''}<span>${E((d&&d.y)||x.releaseInfo||x.year||'')}</span><span>${x.type=='movie'?'Film':'Dizi'}</span></div><p class="ov" id="ov">${E((d&&d.ov)||x.description||'')}</p><div class="bt"><button class="b p1" id="bp">▶ Oynat</button><button class="b" id="bd">Ayrıntılar</button></div>`;
-$('#bp').onclick=()=>x.type=='movie'?src(x.id,'movie',x,x.name):openD(K(x));
-$('#bd').onclick=()=>openD(K(x))}
-function pick(k){const x=reg[k];if(!x)return;cur=x;hero(x,ic[k]);info(x).then(d=>{if(cur===x&&d)hero(x,d)})}
 const dc={};let rc=[];
 const fmt=m=>m?(m>=60?Math.floor(m/60)+'s ':'')+(m%60?m%60+'dk':''):'';
 async function full(x,d){const k=K(x);if(dc[k])return dc[k];try{return dc[k]=await G('https://api.themoviedb.org/3/'+d.tt+'/'+d.tid+'?append_to_response=credits,recommendations&language=tr-TR&api_key='+cfg.tmdb)}catch(e){return null}}
@@ -145,7 +162,8 @@ function openD(k){if(!reg[k])return;const s=on('#sh');hideS();s?history.replaceS
 async function renderD(k){const x=reg[k],el=$('#dt');if(!x)return;el.classList.add('on');el.scrollTop=0;
 const ok=()=>dstack[dstack.length-1]==k;
 const paint=(d,f)=>{const bg=d&&d.bd?'https://image.tmdb.org/t/p/w1280'+d.bd:(x.background||x.poster||''),r=rate(x,d)||[],isF=fav.some(h=>K(h)==k),run=f?fmt(x.type=='movie'?f.runtime:(f.episode_run_time||[])[0]):'',g=f?(f.genres||[]).slice(0,3).map(z=>z.name).join(', '):'',c=f&&f.credits?f.credits.cast.slice(0,8).map(z=>z.name).join(', '):'';
-el.innerHTML=`<div class="dh" style="background-image:url('${E(bg)}')"><button class="bk" onclick="history.back()" aria-label="Geri">‹</button></div><div class="db"><h1>${E(x.name)}</h1><div class="meta">${r[1]?`<span class="pill${r[0]=='TMDB'?' t':''}">${r[0]} ${String(r[1]).replace('.',',')}</span>`:''}<span>${E((d&&d.y)||x.releaseInfo||x.year||'')}</span>${run?'<span>'+run+'</span>':''}${g?'<span>'+E(g)+'</span>':''}</div><div class="bt"><button class="b p1" id="dp">${x.type=='movie'?'▶ Oynat':'▼ Bölümler'}</button><button class="b" id="df">${isF?'♥ Listemde':'♡ Listeme ekle'}</button></div><p class="ov open">${E((d&&d.ov)||x.description||'Özet bulunamadı.')}</p>${c?'<p class="cast">Oyuncular: '+E(c)+'</p>':''}${x.type=='series'?'<h2 style="margin:12px 0 0">Bölümler</h2><div id="de"></div>':''}<div id="dr"></div></div>`;
+const ovt=(d&&d.ov)||x.description||'Özet bulunamadı.';
+el.innerHTML=`<div class="dh" style="background-image:url('${E(bg)}')"><button class="bk" onclick="history.back()" aria-label="Geri">‹</button><div class="di"><h1>${E(x.name)}</h1><div class="meta">${r[1]?`<span class="pill${r[0]=='TMDB'?' t':''}">${r[0]} ${String(r[1]).replace('.',',')}</span>`:''}<span>${E((d&&d.y)||x.releaseInfo||x.year||'')}</span>${run?'<span>'+run+'</span>':''}${g?'<span>'+E(g)+'</span>':''}</div><p class="ov">${E(ovt)}</p><div class="bt"><button class="b p1" id="dp">${x.type=='movie'?'▶ Oynat':'▼ Bölümler'}</button><button class="b" id="df">${isF?'♥ Listemde':'♡ Listeme ekle'}</button></div></div></div><div class="db">${ovt.length>170?'<h2 class="h">Özet</h2><p class="ovf">'+E(ovt)+'</p>':''}${c?'<p class="cast">Oyuncular: '+E(c)+'</p>':''}${x.type=='series'?'<h2 class="h">Bölümler</h2><div id="de"></div>':''}<div id="dr"></div></div>`;
 if(f&&f.recommendations&&f.recommendations.results.length){rc=f.recommendations.results.filter(z=>z.poster_path).slice(0,15);$('#dr').innerHTML='<h2 style="margin:12px 0 8px">Benzer yapımlar</h2><div class="strip" style="padding:0">'+rc.map((z,i)=>`<button class="p" data-r="${i}"><img loading="lazy" src="https://image.tmdb.org/t/p/w342${z.poster_path}" alt="${E(z.title||z.name)}"></button>`).join('')+'</div>'}};
 paint(ic[k]);const d=await info(x);if(!ok())return;paint(d);
 if(d&&d.tid){const f=await full(x,d);if(!ok()||!f)return;paint(d,f);if(x.type=='series')loadEps(x,d,f)}
@@ -220,8 +238,8 @@ $('#q').oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{const q=e.target.valu
 const r=await Promise.all(['movie','series'].map(ty=>G('https://v3-cinemeta.strem.io/catalog/'+ty+'/top/search='+encodeURIComponent(q)+'.json').catch(()=>({metas:[]}))));
 const m=[].concat(r[0].metas||[],r[1].metas||[]).filter(x=>x.poster).slice(0,30);$('#qr').innerHTML=m.length?strip(m):'<p class="m">Sonuç yok.</p>'},400)};
 $('#shc').onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)};$('#q').focus()}
-document.addEventListener('click',e=>{const p=e.target.closest('#rows .p'),g=e.target.closest('[data-g]'),t=e.target.closest('.tab');
-if(p)openD(p.dataset.k);
+document.addEventListener('click',e=>{const p=e.target.closest('#rows .p'),g=e.target.closest('[data-g]'),t=e.target.closest('.tab'),al=e.target.closest('[data-all]'),cc=e.target.closest('.cc');
+if(p)openD(p.dataset.k);else if(al)allv(+al.dataset.all);else if(cc)openD(cc.dataset.k);
 else if(g){const s=$('#r'+g.dataset.g);if(s)s.scrollIntoView({behavior:'smooth',block:'start'})}
 else if(t){tab=t.dataset.t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b===t));draw();cur=null;first()}});
 $('#bs').onclick=search;$('#bg').onclick=settings;
