@@ -125,6 +125,26 @@ h1,.ct b{font-weight:800}
 .sa button{border-radius:999px;background:linear-gradient(180deg,#323235,#242427);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)}
 .sa .go{background:linear-gradient(180deg,#323235,#242427);color:var(--ac)}
 .pill{border-radius:999px;padding:2px 9px}
+#sh2{position:fixed;inset:0;z-index:58;background:rgba(0,0,0,.65);display:none;align-items:flex-end}#sh2.on{display:flex}
+#shc2{width:100%;max-height:88vh;overflow:auto;background:#000;border-top:1px solid #23232b;border-radius:20px 20px 0 0;padding:12px 16px calc(env(safe-area-inset-bottom) + 20px)}
+#sh2.full{align-items:stretch}#sh2.full #shc2{max-height:none;border-radius:0;padding-top:calc(env(safe-area-inset-top) + 12px)}
+#dt{z-index:55}
+.bd.w{background:#38bdf8}.sa .dim{opacity:.5}
+.b.ic{flex:none;width:46px;min-width:46px;padding:0}.b.ic svg{color:var(--ac)}.cb .b.ic{width:40px;min-width:40px;padding:0}
+.dh{height:clamp(440px,72vh,660px)}
+.di{flex-direction:column;gap:14px;width:100%;padding:0 16px 18px}
+.dl{display:flex;flex-direction:column;gap:14px}.dl h1{font-size:clamp(28px,8vw,44px)}
+.dq{display:flex;flex-direction:column;gap:8px}.dq .ov{-webkit-line-clamp:4}
+.dh:after{background:linear-gradient(to top,#000 3%,rgba(0,0,0,.55) 42%,rgba(0,0,0,.08) 78%)}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #1c1c22}.tabs::-webkit-scrollbar{display:none}
+.tb{flex:none;height:46px;padding:0 12px;color:var(--mut);font-weight:700;border-bottom:3px solid transparent}.tb.on{color:#fff;border-color:var(--ac)}
+.pane[hidden]{display:none}
+#ssel{display:inline-block;width:auto;margin:10px 0 6px;padding:8px 16px;border-radius:999px;font-weight:700}
+.ep{border:0;border-bottom:1px solid #16161b;border-radius:0;padding:10px 0;margin:0;gap:12px;background:none}
+.th{flex:none;width:132px;aspect-ratio:16/9;border-radius:8px;background:#14141a center/cover;display:grid;place-items:center}
+.th i{font-style:normal;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.55);display:grid;place-items:center;font-size:12px}
+.et{display:flex;flex-direction:column;gap:2px;min-width:0}.et b{font-size:14px}.ep .et small{margin-left:0;color:var(--mut);font-size:12px}
+@media(orientation:landscape) and (max-height:520px){.dh{height:100vh;height:100dvh}.dh:after{background:linear-gradient(to top,#000 3%,rgba(0,0,0,.6) 38%,rgba(0,0,0,.05) 72%)}.di{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:28px;width:100%;padding:0 24px 22px calc(env(safe-area-inset-left) + 24px)}.dl{width:40%;flex:none}.dq{flex:1;min-width:0}.di .bt .b.p1{flex:1;padding:0 22px}.di .bt .b.ic{flex:none;padding:0}.db{padding:8px 24px 30px}}
 </style>
 </head>
 <body>
@@ -136,6 +156,7 @@ h1,.ct b{font-weight:800}
 <main id="rows"></main>
 <div id="dt"></div>
 <div id="sh"><div id="shc"></div></div>
+<div id="sh2"><div id="shc2"></div></div>
 <div id="pl"><div class="pc"><button class="x" onclick="history.back()" aria-label="Kapat">✕</button><button class="x w" id="sb">Altyazı</button><button class="x w" id="fs">Tam ekran</button></div><div id="pe"></div><div id="sp"></div><video id="v" controls playsinline></video></div>
 <div id="tt"></div>
 <script>
@@ -151,37 +172,38 @@ async function G(u,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),
 const SV=p=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${p}</svg>`,IP=SV('<path d="M7 4l13 8-13 8z"/>'),IA=SV('<path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/>'),IK=SV('<path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/>'),ID=SV('<path d="M5 8l7 8 7-8z"/>');
 function togF(x){const k=K(x),i=fav.findIndex(h=>K(h)==k);if(i<0)fav.unshift(x);else fav.splice(i,1);W('fav',fav);draw();return i<0}
 function toast(t){const e=$('#tt');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',1800)}
-const on=s=>$(s).classList.contains('on');
-let dstack=[];
-function sheet(h,full){if(!on('#sh'))history.pushState({},'');$('#shc').innerHTML='<button class="x" onclick="history.back()" aria-label="Kapat">✕</button>'+h;$('#sh').classList.add('on');$('#sh').classList.toggle('full',!!full);$('#shc').onclick=null;$('#shc').scrollTop=0}
-function hideS(){$('#sh').classList.remove('on')}
-function closeS(){if(on('#sh'))history.back()}
+const on=s=>$(s).classList.contains('on'),hide=s=>$(s).classList.remove('on');
+let dstack=[],dtab='',SH=$('#sh'),SC=$('#shc');
+function sheet(h,full){const lv=on('#dt')?'2':'';SH=$('#sh'+lv);SC=$('#shc'+lv);if(!SH.classList.contains('on'))history.pushState({},'');SC.innerHTML='<button class="x" onclick="history.back()" aria-label="Kapat">✕</button>'+h;SH.classList.add('on');SH.classList.toggle('full',!!full);SC.onclick=null;SC.scrollTop=0}
+function closeS(){if(on('#sh2')||on('#sh'))history.back()}
 $('#sh').onclick=e=>{if(e.target.id=='sh')closeS()};
-addEventListener('popstate',()=>{if(on('#pl'))stopW();else if(on('#sh'))hideS();else if(on('#dt')){dstack.pop();if(dstack.length)renderD(dstack[dstack.length-1]);else{$('#dt').classList.remove('on');$('#dt').innerHTML=''}}});
+$('#sh2').onclick=e=>{if(e.target.id=='sh2')closeS()};
+addEventListener('popstate',()=>{if(on('#pl'))stopW();else if(on('#sh2'))hide('#sh2');else if(on('#dt')){dstack.pop();if(dstack.length)renderD(dstack[dstack.length-1]);else{hide('#dt');$('#dt').innerHTML=''}}else if(on('#sh'))hide('#sh')});
 
 function strip(a){return a.map(x=>{reg[K(x)]=x;return`<button class="p${cur&&K(cur)==K(x)?' sel':''}" data-k="${E(K(x))}" aria-label="${E(x.name)}"><img loading="lazy" src="${E(x.poster)}" alt="${E(x.name)}">${x.d?`<i class="pg" style="width:${Math.min(100,x.t/x.d*100)}%"></i>`:''}</button>`}).join('')}
 const GN=[['Aksiyon','Action'],['Macera','Adventure'],['Animasyon','Animation'],['Komedi','Comedy'],['Suç','Crime'],['Belgesel','Documentary'],['Dram','Drama'],['Aile','Family'],['Fantastik','Fantasy'],['Korku','Horror'],['Gizem','Mystery'],['Romantik','Romance'],['Bilim Kurgu','Sci-Fi'],['Gerilim','Thriller'],['Savaş','War']];
 function genre(i){const g=GN[i],ty=tab;let sk=0;
 sheet('<h3>'+E(g[0])+'</h3><div class="strip" id="gl" style="flex-wrap:wrap;overflow:visible;padding:0"></div><p class="m" id="gm">Yükleniyor…</p><button class="b" id="gx" style="display:none;width:100%;margin-top:14px">Daha fazla</button>',1);
 const more=async()=>{try{const d=await G('https://v3-cinemeta.strem.io/catalog/'+ty+'/top/genre='+encodeURIComponent(g[1])+(sk?'&skip='+sk:'')+'.json'),a=d.metas||[];sk+=a.length;const m=a.filter(x=>x.poster);$('#gl').insertAdjacentHTML('beforeend',strip(m));$('#gm').textContent=sk?'':'Sonuç yok.';$('#gx').style.display=a.length?'flex':'none'}catch(e){$('#gm').textContent='Yüklenemedi: '+e.message}};
-$('#gx').onclick=more;$('#shc').onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)};more()}
+$('#gx').onclick=more;SC.onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)};more()}
 function draw(){const v=rows.map((r,i)=>[r,i]).filter(a=>a[0].c.type==tab),sec=(t,a)=>a.length?`<section><h2>${t}</h2><div class="strip">${strip(a)}</div></section>`:'';
 $('#chips').innerHTML=v.map(a=>`<button data-g="${a[1]}">${E(a[0].c.name)}</button>`).join('');
 $('#gen').innerHTML=GN.map((g,i)=>`<button data-gn="${i}">${g[0]}</button>`).join('');
 $('#rows').innerHTML=sec('Devam et',hist.filter(x=>x.type==tab))+sec('Listem',fav.filter(x=>x.type==tab))+v.map(a=>`<section id="r${a[1]}"><h2 class="sh">${E(a[0].c.name)}<button data-all="${a[1]}">Tümü ›</button></h2><div class="strip" id="s${a[1]}">${a[0].items?strip(a[0].items):'<i class="sk"></i>'.repeat(5)}</div></section>`).join('')||'<p class="m">Liste yok.</p>'}
 async function load(){if(!cfg.cat){settings();return}
 $('#rows').innerHTML='<p class="m">Listeler yükleniyor…</p>';
-carT='';try{const b=B(cfg.cat),m=await G(b+'/manifest.json');
-rows=(m.catalogs||[]).filter(c=>['movie','series'].includes(c.type)&&!(c.extra||[]).some(e=>e.isRequired)&&!(c.extraRequired||[]).length).slice(0,20).map(c=>({c,items:null}));
+carT='';const ck='cat:'+cfg.cat,cc=J(ck,null),old={};if(cc&&cc.length){rows=cc;cc.forEach(r=>old[r.c.type+r.c.id]=r.items);draw();first()}
+try{const b=B(cfg.cat),m=await G(b+'/manifest.json');
+rows=(m.catalogs||[]).filter(c=>['movie','series'].includes(c.type)&&!(c.extra||[]).some(e=>e.isRequired)&&!(c.extraRequired||[]).length).slice(0,20).map(c=>({c,items:old[c.type+c.id]||null}));
 draw();first();
-rows.forEach(async(r,i)=>{try{const d=await G(b+'/catalog/'+r.c.type+'/'+encodeURIComponent(r.c.id)+'.json');r.items=(d.metas||[]).filter(x=>x.poster)}catch(e){r.items=[]}
-const s=$('#s'+i);if(s)s.innerHTML=r.items.length?strip(r.items):'<p class="m">Boş</p>';first()})}
-catch(e){$('#rows').innerHTML='<p class="m">Listeler alınamadı: '+E(e.message)+'. Ayarlar’dan bağlantıyı kontrol et.</p>'}}
+Promise.all(rows.map(async(r,i)=>{try{const d=await G(b+'/catalog/'+r.c.type+'/'+encodeURIComponent(r.c.id)+'.json');r.items=(d.metas||[]).filter(x=>x.poster)}catch(e){r.items=[]}
+const s=$('#s'+i);if(s)s.innerHTML=r.items.length?strip(r.items):'<p class="m">Boş</p>';first()})).then(()=>W(ck,rows.map(r=>({c:r.c,items:(r.items||[]).slice(0,30).map(x=>({id:x.id,type:x.type,name:x.name,poster:x.poster,background:x.background,releaseInfo:x.releaseInfo,year:x.year,imdbRating:x.imdbRating,description:(x.description||'').slice(0,200)}))}))))}
+catch(e){if(rows.length)toast('Güncellenemedi, kayıtlı listeler gösteriliyor');else $('#rows').innerHTML='<p class="m">Listeler alınamadı: '+E(e.message)+'. Ayarlar’dan bağlantıyı kontrol et.</p>'}}
 let carT='';
 function first(){if(carT==tab)return;const r=rows.find(r=>r.c.type==tab&&r.items&&r.items.length);if(!r){$('#hero').innerHTML='';return}carT=tab;const a=r.items.slice(0,6);a.forEach(x=>reg[K(x)]=x);
-$('#hero').innerHTML=a.map(x=>{const k=E(K(x)),isF=fav.some(h=>K(h)==K(x));return`<div class="cc" data-k="${k}" style="background-image:url('${E(x.background||x.poster)}')"><span class="ct"><b>${E(x.name)}</b><small>${E((x.type=='movie'?'Film':'Dizi')+(x.releaseInfo||x.year?' · '+(x.releaseInfo||x.year):''))}${x.imdbRating?' · IMDb '+String(x.imdbRating).replace('.',','):''}</small><span class="cb"><button class="b p1" data-cp="${k}">${IP} Oynat</button><button class="b" data-cf="${k}">${isF?IK+' Listemde':IA+' Listem'}</button></span></span></div>`}).join('');
+$('#hero').innerHTML=a.map(x=>{const k=E(K(x)),isF=fav.some(h=>K(h)==K(x));return`<div class="cc" data-k="${k}" style="background-image:url('${E(x.background||x.poster)}')"><span class="ct"><b>${E(x.name)}</b><small>${E((x.type=='movie'?'Film':'Dizi')+(x.releaseInfo||x.year?' · '+(x.releaseInfo||x.year):''))}${x.imdbRating?' · IMDb '+String(x.imdbRating).replace('.',','):''}</small><span class="cb"><button class="b p1" data-cp="${k}">${IP} Oynat</button><button class="b ic" data-cf="${k}" aria-label="Listem">${isF?IK:IA}</button></span></span></div>`}).join('');
 a.forEach(x=>info(x).then(d=>{if(d&&d.bd){const e=document.querySelector('.cc[data-k="'+CSS.escape(K(x))+'"]');if(e)e.style.backgroundImage="url('https://image.tmdb.org/t/p/w780"+d.bd+"')"}}))}
-function allv(i){const r=rows[i];sheet('<h3>'+E(r.c.name)+'</h3><div class="strip" style="flex-wrap:wrap;overflow:visible;padding:0">'+strip(r.items||[])+'</div>',1);$('#shc').onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)}}
+function allv(i){const r=rows[i];sheet('<h3>'+E(r.c.name)+'</h3><div class="strip" style="flex-wrap:wrap;overflow:visible;padding:0">'+strip(r.items||[])+'</div>',1);SC.onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)}}
 const rate=(x,d)=>{const v=d&&d.imdb||x.imdbRating;if(v)return['IMDb',v];if(d&&d.r)return['TMDB',d.r.toFixed(1)]}
 async function info(x){const k=K(x);if(k in ic)return ic[k];let d=null;
 if(cfg.tmdb&&/^tt/.test(x.id)){try{const f=await G('https://api.themoviedb.org/3/find/'+x.id.split(':')[0]+'?external_source=imdb_id&language=tr-TR&api_key='+cfg.tmdb),m=f.movie_results[0]||f.tv_results[0];
@@ -191,34 +213,36 @@ ic[k]=d;return d}
 const dc={};let rc=[];
 const fmt=m=>m?(m>=60?Math.floor(m/60)+'s ':'')+(m%60?m%60+'dk':''):'';
 async function full(x,d){const k=K(x);if(dc[k])return dc[k];try{return dc[k]=await G('https://api.themoviedb.org/3/'+d.tt+'/'+d.tid+'?append_to_response=credits,recommendations&language=tr-TR&api_key='+cfg.tmdb)}catch(e){return null}}
-function openD(k){if(!reg[k])return;const s=on('#sh');hideS();s?history.replaceState({},''):history.pushState({},'');dstack.push(k);renderD(k)}
+function openD(k){if(!reg[k])return;history.pushState({},'');dstack.push(k);dtab='';renderD(k)}
 async function renderD(k){const x=reg[k],el=$('#dt');if(!x)return;el.classList.add('on');el.scrollTop=0;
 const ok=()=>dstack[dstack.length-1]==k;
-const paint=(d,f)=>{const bg=d&&d.bd?'https://image.tmdb.org/t/p/w1280'+d.bd:(x.background||x.poster||''),r=rate(x,d)||[],isF=fav.some(h=>K(h)==k),run=f?fmt(x.type=='movie'?f.runtime:(f.episode_run_time||[])[0]):'',g=f?(f.genres||[]).slice(0,3).map(z=>z.name).join(', '):'',c=f&&f.credits?f.credits.cast.slice(0,8).map(z=>z.name).join(', '):'';
-const ovt=(d&&d.ov)||x.description||'Özet bulunamadı.';
-el.innerHTML=`<div class="dh" style="background-image:url('${E(bg)}')"><button class="bk" onclick="history.back()" aria-label="Geri">‹</button><div class="di"><h1>${E(x.name)}</h1><div class="meta">${r[1]?`<span class="pill${r[0]=='TMDB'?' t':''}">${r[0]} ${String(r[1]).replace('.',',')}</span>`:''}<span>${E((d&&d.y)||x.releaseInfo||x.year||'')}</span>${run?'<span>'+run+'</span>':''}${g?'<span>'+E(g)+'</span>':''}</div><p class="ov">${E(ovt)}</p><div class="bt"><button class="b p1" id="dp">${x.type=='movie'?IP+' Oynat':ID+' Bölümler'}</button><button class="b" id="df">${isF?IK+' Listemde':IA+' Listeme ekle'}</button></div></div></div><div class="db">${ovt.length>170?'<h2 class="h">Özet</h2><p class="ovf">'+E(ovt)+'</p>':''}${c?'<p class="cast">Oyuncular: '+E(c)+'</p>':''}${x.type=='series'?'<h2 class="h">Bölümler</h2><div id="de"></div>':''}<div id="dr"></div></div>`;
-if(f&&f.recommendations&&f.recommendations.results.length){rc=f.recommendations.results.filter(z=>z.poster_path).slice(0,15);$('#dr').innerHTML='<h2 style="margin:12px 0 8px">Benzer yapımlar</h2><div class="strip" style="padding:0">'+rc.map((z,i)=>`<button class="p" data-r="${i}"><img loading="lazy" src="https://image.tmdb.org/t/p/w342${z.poster_path}" alt="${E(z.title||z.name)}"></button>`).join('')+'</div>'}};
+const paint=(d,f)=>{const bg=d&&d.bd?'https://image.tmdb.org/t/p/w1280'+d.bd:(x.background||x.poster||''),r=rate(x,d)||[],isF=fav.some(h=>K(h)==k),se=x.type=='series',run=f?fmt(se?(f.episode_run_time||[])[0]:f.runtime):'',g=f?(f.genres||[]).slice(0,3).map(z=>z.name).join(', '):'',c=f&&f.credits?f.credits.cast.slice(0,8).map(z=>z.name).join(', '):'',ovt=(d&&d.ov)||x.description||'Özet bulunamadı.',tabs=(se?[['e','Bölümler']]:[]).concat([['r','Benzer yapımlar'],['a','Hakkında']]);
+if(!tabs.some(t=>t[0]==dtab))dtab=tabs[0][0];
+const hd=p=>p==dtab?'':' hidden';
+el.innerHTML=`<div class="dh" style="background-image:url('${E(bg)}')"><button class="bk" onclick="history.back()" aria-label="Geri">‹</button><div class="di"><div class="dl"><h1>${E(x.name)}</h1><div class="bt"><button class="b p1" id="dp">${se?ID+' Bölümler':IP+' Oynat'}</button><button class="b ic" id="df" aria-label="Listem">${isF?IK:IA}</button></div></div><div class="dq"><div class="meta">${g?'<span>'+E(g)+'</span>':''}${se&&f&&f.number_of_seasons?'<span>'+f.number_of_seasons+' sezon</span>':''}<span>${E((d&&d.y)||x.releaseInfo||x.year||'')}</span>${run?'<span>'+run+'</span>':''}${r[1]?`<span class="pill${r[0]=='TMDB'?' t':''}">${r[0]} ${String(r[1]).replace('.',',')}</span>`:''}</div><p class="ov">${E(ovt)}</p>${c?'<p class="cast">Oyuncular: '+E(c)+'</p>':''}</div></div></div><div class="db"><div class="tabs">${tabs.map(t=>`<button class="tb${t[0]==dtab?' on':''}" data-tb="${t[0]}">${t[1]}</button>`).join('')}</div>${se?'<div class="pane" data-p="e"'+hd('e')+'><div id="de"></div></div>':''}<div class="pane" data-p="r"${hd('r')}><div id="dr"></div></div><div class="pane" data-p="a"${hd('a')}><p class="ovf">${E(ovt)}</p>${c?'<p class="cast" style="margin-top:12px">Oyuncular: '+E(c)+'</p>':''}</div></div>`;
+if(f){rc=(f.recommendations&&f.recommendations.results||[]).filter(z=>z.poster_path).slice(0,15);$('#dr').innerHTML=rc.length?'<div class="strip" style="padding:0">'+rc.map((z,i)=>`<button class="p" data-r="${i}"><img loading="lazy" src="https://image.tmdb.org/t/p/w342${z.poster_path}" alt="${E(z.title||z.name)}"></button>`).join('')+'</div>':'<p class="m">Öneri bulunamadı.</p>'}else $('#dr').innerHTML='<p class="m">'+(cfg.tmdb?'Yükleniyor…':'Öneriler için Ayarlar’a TMDB anahtarı ekle.')+'</p>'};
 paint(ic[k]);const d=await info(x);if(!ok())return;paint(d);
 if(d&&d.tid){const f=await full(x,d);if(!ok()||!f)return;paint(d,f);if(x.type=='series')loadEps(x,d,f)}
 else if(x.type=='series')$('#de').innerHTML='<p class="m">Bölüm listesi için Ayarlar’a TMDB anahtarı ekle.</p>'}
 function loadEps(x,d,f){const ss=(f.seasons||[]).filter(s=>s.season_number>0),el=$('#de');if(!ss.length){el.innerHTML='<p class="m">Sezon bulunamadı.</p>';return}
-el.innerHTML='<div class="chips" style="padding:0;margin:8px 0 10px">'+ss.map(s=>`<button data-s="${s.season_number}">Sezon ${s.season_number}</button>`).join('')+'</div><div id="el"></div>';
-window.showS=async n=>{$('#el').innerHTML='<p class="m">Yükleniyor…</p>';try{const r=await G('https://api.themoviedb.org/3/tv/'+d.tid+'/season/'+n+'?language=tr-TR&api_key='+cfg.tmdb);$('#el').innerHTML=r.episodes.map(e=>`<button class="ep" data-n="${n}" data-e="${e.episode_number}"><b>${e.episode_number}.</b> ${E(e.name)}<small>${e.runtime?e.runtime+' dk':''}</small></button>`).join('')}catch(e){$('#el').innerHTML='<p class="m">'+E(e.message)+'</p>'}};
+el.innerHTML='<select id="ssel" aria-label="Sezon">'+ss.map(s=>`<option value="${s.season_number}">Sezon ${s.season_number}</option>`).join('')+'</select><div id="el"></div>';
+window.showS=async n=>{$('#el').innerHTML='<p class="m">Yükleniyor…</p>';try{const r=await G('https://api.themoviedb.org/3/tv/'+d.tid+'/season/'+n+'?language=tr-TR&api_key='+cfg.tmdb);$('#el').innerHTML=r.episodes.map(e=>`<button class="ep" data-n="${n}" data-e="${e.episode_number}"><span class="th" style="${e.still_path?`background-image:url('https://image.tmdb.org/t/p/w300${e.still_path}')`:''}"><i>▶</i></span><span class="et"><b>${e.episode_number}. ${E(e.name)}</b><small>${E([e.runtime?fmt(e.runtime):'',e.air_date?e.air_date.split('-').reverse().join('.'):''].filter(Boolean).join(' · '))}</small></span></button>`).join('')}catch(e){$('#el').innerHTML='<p class="m">'+E(e.message)+'</p>'}};
 showS(ss[0].season_number)}
 async function rec(z){const tt=reg[dstack[dstack.length-1]].type=='movie'?'movie':'tv';try{const e=await G('https://api.themoviedb.org/3/'+tt+'/'+z.id+'/external_ids?api_key='+cfg.tmdb);if(!e.imdb_id)return toast('Bu yapım açılamadı');const x={id:e.imdb_id,type:tt=='tv'?'series':'movie',name:z.title||z.name,poster:'https://image.tmdb.org/t/p/w342'+z.poster_path,description:z.overview};reg[K(x)]=x;openD(K(x))}catch(er){toast(er.message)}}
-$('#dt').onclick=e=>{const k=dstack[dstack.length-1],x=reg[k],ep=e.target.closest('.ep'),c=e.target.closest('[data-s]'),r=e.target.closest('[data-r]'),f=e.target.closest('#df');if(!x)return;
+$('#dt').onclick=e=>{const k=dstack[dstack.length-1],x=reg[k],ep=e.target.closest('.ep'),r=e.target.closest('[data-r]'),f=e.target.closest('#df'),tb=e.target.closest('[data-tb]');if(!x)return;
 if(ep)src(x.id+':'+ep.dataset.n+':'+ep.dataset.e,'series',x,x.name+' · S'+ep.dataset.n+' B'+ep.dataset.e);
-else if(c&&window.showS)showS(c.dataset.s);
 else if(r)rec(rc[r.dataset.r]);
-else if(e.target.closest('#dp')){if(x.type=='movie')src(x.id,'movie',x,x.name);else{const z=$('#de');if(z)z.scrollIntoView({behavior:'smooth'})}}
-else if(f){f.innerHTML=togF(x)?IK+' Listemde':IA+' Listeme ekle'}};
+else if(tb){dtab=tb.dataset.tb;$('#dt').querySelectorAll('.tb').forEach(b=>b.classList.toggle('on',b===tb));$('#dt').querySelectorAll('.pane').forEach(p=>p.hidden=p.dataset.p!=dtab)}
+else if(e.target.closest('#dp')){if(x.type=='movie')src(x.id,'movie',x,x.name);else{const t=$('#dt').querySelector('[data-tb="e"]');if(t)t.click();$('#dt').querySelector('.tabs').scrollIntoView({behavior:'smooth'})}}
+else if(f){f.innerHTML=togF(x)?IK:IA}};
+$('#dt').onchange=e=>{if(e.target.id=='ssel'&&window.showS)showS(e.target.value)};
 function addH(x){const o=hist.find(h=>K(h)==K(x));hist=hist.filter(h=>K(h)!=K(x));hist.unshift(Object.assign({},x,o?{t:o.t,d:o.d}:{}));hist=hist.slice(0,20);W('hist',hist)}
 function parse(s,nm){const t=((s.title||'')+'\n'+(s.description||'')).split('\n').map(z=>z.trim()).filter(Boolean),a=(s.name||'')+' '+t.join(' '),z=a.match(/(\d+(?:[.,]\d+)?)\s?(GB|MB)/i);
-return{url:s.url,nm,r:/2160|4k|uhd/i.test(a)?4:/1080/.test(a)?3:/720/.test(a)?2:1,sz:z?parseFloat(z[1].replace(',','.'))*(/gb/i.test(z[2])?1024:1):0,ok:/\+\]|⚡/.test(s.name||''),a:t[0]||s.name||'Kaynak',b:t.slice(1).join(' · ').slice(0,90)}}
+return{url:s.url,nm,r:/2160|4k|uhd/i.test(a)?4:/1080/.test(a)?3:/720/.test(a)?2:1,sz:z?parseFloat(z[1].replace(',','.'))*(/gb/i.test(z[2])?1024:1):0,ok:/\+\]|⚡/.test(s.name||''),w:(/\.mp4(\?|$)/i.test(s.url||'')||/(^|[\s._\-\[(])mp4([\s._\-\])]|$)/i.test(a))&&!/mkv|dts|truehd|flac|av1|avi|xvid/i.test(a),a:t[0]||s.name||'Kaynak',b:t.slice(1).join(' · ').slice(0,90)}}
 const cmp=(a,b)=>b.ok-a.ok||b.r-a.r||b.sz-a.sz;
-function list(a){$('#sl').innerHTML=a.slice(0,40).map((s,i)=>`<div class="src" data-i="${i}"><div class="si"><b>${E(s.a)}</b><small>${E(s.b)}</small></div><div class="sb"><span class="bd">${RL[s.r]}</span>${s.ok?'<span class="bd g">Hazır</span>':''}<span class="mt">${E(s.nm)}${s.sz?' · '+(s.sz>=1024?(s.sz/1024).toFixed(1)+' GB':Math.round(s.sz)+' MB'):''}</span></div><div class="sa"><button class="go" data-a="p">▶ Oynat</button><button data-a="w">Web</button><button data-a="c">Kopyala</button></div></div>`).join('')||'<p class="m">Bu süzgeçte kaynak yok.</p>'}
+function list(a){$('#sl').innerHTML=a.slice(0,40).map((s,i)=>`<div class="src" data-i="${i}"><div class="si"><b>${E(s.a)}</b><small>${E(s.b)}</small></div><div class="sb"><span class="bd">${RL[s.r]}</span>${s.ok?'<span class="bd g">Hazır</span>':''}${s.w?'<span class="bd w">Web uyumlu</span>':''}<span class="mt">${E(s.nm)}${s.sz?' · '+(s.sz>=1024?(s.sz/1024).toFixed(1)+' GB':Math.round(s.sz)+' MB'):''}</span></div><div class="sa"><button class="go" data-a="p">▶ Oynat</button><button data-a="w"${s.w?'':' class="dim"'}>Web</button><button data-a="c">Kopyala</button></div></div>`).join('')||'<p class="m">Bu süzgeçte kaynak yok.</p>'}
 const P={vlc:(u,sb)=>'vlc-x-callback://x-callback-url/stream?url='+encodeURIComponent(u)+(sb?'&sub='+encodeURIComponent(sb):''),infuse:(u,sb)=>'infuse://x-callback-url/play?url='+encodeURIComponent(u)+(sb?'&sub='+encodeURIComponent(sb):''),nplayer:u=>'nplayer-'+u};
-const FL=[['Hepsi',()=>1],['4K',s=>s.r==4],['1080p',s=>s.r==3],['20 GB altı',s=>s.sz>0&&s.sz<20480]],AC=' style="background:#3a2a0a;color:#f5a524"';
+const FL=[['Hepsi',()=>1],['4K',s=>s.r==4],['1080p',s=>s.r==3],['20 GB altı',s=>s.sz>0&&s.sz<20480],['Web uyumlu',s=>s.w]],AC=' style="background:#3a2a0a;color:#f5a524"';
 function src(id,type,x,label){addH(x);sheet('<h3>'+E(label)+'</h3><p class="m" id="sb2" style="margin:0 0 6px;padding:0"></p><div id="sc"></div><div class="chips" id="st" style="padding:0;margin:0 0 6px"></div><div class="chips" id="sf" style="padding:0;margin:0 0 10px"></div><div id="sl"></div><p class="m" id="sm">Kaynaklar aranıyor…</p>');
 const us=cfg.src.split(/\s+/).filter(Boolean).map(B);if(!us.length){$('#sm').textContent='Ayarlar’dan en az bir kaynak eklentisi ekle.';return}
 const names=us.map(u=>{try{const h=new URL(u).hostname.split('.')[0];return h[0].toUpperCase()+h.slice(1)}catch(e){return'Eklenti'}});
@@ -235,7 +259,7 @@ vis=all.filter(s=>(!tb||s.nm==names[tb-1])&&FL[fl][1](s)).sort(cmp);list(vis)};
 us.forEach(async(u,i)=>{try{const d=await G(u+'/stream/'+type+'/'+id+'.json',25000);(d.streams||[]).forEach(s=>{if(s.url)all.push(parse(s,names[i]))})}catch(e){err.push(names[i]+': '+e.message)}
 rd();if(++n==us.length)$('#sm').innerHTML=(all.length?'':'Kaynak bulunamadı. ')+err.map(E).join('<br>')});
 rd();
-$('#shc').onclick=e=>{const t=e.target.closest('[data-q]'),f=e.target.closest('[data-f]'),r=e.target.closest('[data-i]'),a=e.target.closest('[data-a]'),c=e.target.closest('[data-sc]'),j=e.target.closest('[data-sj]');
+SC.onclick=e=>{const t=e.target.closest('[data-q]'),f=e.target.closest('[data-f]'),r=e.target.closest('[data-i]'),a=e.target.closest('[data-a]'),c=e.target.closest('[data-sc]'),j=e.target.closest('[data-sj]');
 if(c)lst();else if(j)sel(+j.dataset.sj);else if(t){tb=+t.dataset.q;rd()}else if(f){fl=+f.dataset.f;rd()}else if(a&&r){const s=vis[r.dataset.i];
 if(a.dataset.a=='w')web(s.url,x,s.a,type,id);else if(a.dataset.a=='c')navigator.clipboard.writeText(s.url).then(()=>toast('Kopyalandı'),()=>prompt('Bağlantıyı kopyala',s.url));else location.href=P[cfg.player](s.url,vs)}}}
 const LN={tur:'Türkçe',eng:'İngilizce',ger:'Almanca',fre:'Fransızca',spa:'İspanyolca',ita:'İtalyanca',rus:'Rusça',ara:'Arapça',por:'Portekizce',pol:'Lehçe',dut:'Felemenkçe'},ln=c=>LN[String(c).toLowerCase()]||String(c||'?').toUpperCase(),isT=c=>/^tur?$/i.test(c||''),isE=c=>/^en/i.test(c||'');
@@ -243,7 +267,7 @@ let subs=[];
 async function vtt(u){const b=await(await fetch(u)).arrayBuffer();let t=new TextDecoder('utf-8').decode(b);if(t.includes('\ufffd'))t=new TextDecoder('windows-1254').decode(b);t=t.replace(/\r/g,'').replace(/^\uFEFF/,'');return t.startsWith('WEBVTT')?t:'WEBVTT\n\n'+t.replace(/(\d+:\d+:\d+),(\d+)/g,'$1.$2')}
 async function addSub(s){try{const u=URL.createObjectURL(new Blob([await vtt(s.url)],{type:'text/vtt'})),v=$('#v');[...v.textTracks].forEach(t=>t.mode='disabled');const t=document.createElement('track');t.kind='subtitles';t.label=ln(s.lang);t.srclang=(s.lang||'').slice(0,2);t.src=u;t.default=true;v.appendChild(t);t.track.mode='showing';toast(ln(s.lang)+' altyazı açıldı')}catch(e){toast('Altyazı alınamadı')}}
 async function getSubs(type,id,file){const out=[],us=cfg.sub.split(/\s+/).filter(Boolean).map(B);await Promise.all(us.map(async u=>{try{let d;try{if(!file)throw 0;d=await G(u+'/subtitles/'+type+'/'+id+'/filename='+encodeURIComponent(file)+'.json')}catch(e){d=await G(u+'/subtitles/'+type+'/'+id+'.json')}(d.subtitles||[]).forEach(s=>s.url&&out.push(s))}catch(e){}}));out.sort((a,b)=>isT(b.lang)-isT(a.lang)||isE(b.lang)-isE(a.lang));return out}
-function web(u,x,file,type,id){const v=$('#v'),o=hist.find(h=>K(h)==K(x));hideS();history.replaceState({},'');$('#pe').textContent='';$('#sp').style.display='none';v.querySelectorAll('track').forEach(t=>t.remove());$('#pl').classList.add('on');v.src=u;
+function web(u,x,file,type,id){const v=$('#v'),o=hist.find(h=>K(h)==K(x));hide(on('#sh2')?'#sh2':'#sh');history.replaceState({},'');$('#pe').textContent='';$('#sp').style.display='none';v.querySelectorAll('track').forEach(t=>t.remove());$('#pl').classList.add('on');v.src=u;
 v.onloadedmetadata=()=>{if(x.type=='movie'&&o&&o.t>10&&o.t<v.duration-30)v.currentTime=o.t};
 v.onerror=()=>$('#pe').textContent='Bu dosya Safari’de açılmadı. Başka bir kaynak dene ya da VLC’de aç.';
 let last=0;v.ontimeupdate=()=>{if(x.type!='movie'||Date.now()-last<5000)return;last=Date.now();const h=hist.find(h=>K(h)==K(x));if(h){h.t=v.currentTime;h.d=v.duration;W('hist',hist)}};v.play().catch(()=>{});
@@ -263,7 +287,7 @@ function settings(){sheet(`<h3>Ayarlar</h3>
 <label>Altyazı eklentileri (OpenSubtitles gibi, her satıra bir bağlantı)<textarea id="f6" rows="3" autocapitalize="off" spellcheck="false">${E(cfg.sub)}</textarea></label>
 <label>Oynatıcıya altyazı gönder (VLC ve Infuse, altyazı eklentisi ekliyse)<select id="f7"><option value="1"${cfg.vsub!='0'?' selected':''}>Açık</option><option value="0"${cfg.vsub=='0'?' selected':''}>Kapalı</option></select></label>
 <label>Oynatıcı<select id="f5">${[['vlc','VLC'],['infuse','Infuse'],['nplayer','nPlayer']].map(p=>`<option value="${p[0]}"${cfg.player==p[0]?' selected':''}>${p[1]}</option>`).join('')}</select></label>
-<div class="bt"><button class="b p1" id="sv">Kaydet</button><button class="b" id="ts">Test et</button></div><div id="tr" class="m"></div><button class="b" id="cl" style="width:100%;margin-top:8px">Tüm bilgileri sil</button>`,1);
+<div class="bt"><button class="b p1" id="sv">Kaydet</button><button class="b" id="ts">Test et</button></div><div id="tr" class="m"></div><p class="m" style="margin-top:14px">Yedek, anahtarlarını da içerir. Kimseyle paylaşma.</p><div class="bt"><button class="b" id="bk1">Ayarları kopyala</button><button class="b" id="bk2">Ayarları yapıştır</button></div><button class="b" id="cl" style="width:100%;margin-top:14px">Tüm bilgileri sil</button>`,1);
 const rd=()=>{cfg={cat:$('#f1').value.trim(),tmdb:$('#f2').value.trim(),omdb:$('#f3').value.trim(),src:$('#f4').value.trim(),sub:$('#f6').value.trim(),vsub:$('#f7').value,player:$('#f5').value};W('cfg',cfg)};
 $('#sv').onclick=()=>{rd();closeS();cur=null;load()};
 $('#ts').onclick=async()=>{rd();const o=$('#tr');o.innerHTML='Test ediliyor…';let h='';
@@ -272,14 +296,16 @@ if(cfg.cat)await t('BetterPosters',async()=>{const m=await G(B(cfg.cat)+'/manife
 if(cfg.tmdb)await t('TMDB',()=>G('https://api.themoviedb.org/3/configuration?api_key='+cfg.tmdb).then(()=>''));else h+='✕ TMDB anahtarı boş<br>';
 for(const u of cfg.src.split(/\s+/).filter(Boolean))await t('Kaynak',async()=>{const m=await G(B(u)+'/manifest.json');return' '+E(m.name||'')});
 o.innerHTML=h};
+$('#bk1').onclick=()=>{rd();const t=JSON.stringify(cfg);navigator.clipboard.writeText(t).then(()=>toast('Kopyalandı'),()=>prompt('Kopyala',t))};
+$('#bk2').onclick=()=>{const t=prompt('Kopyaladığın ayarları yapıştır');if(!t)return;try{const o=JSON.parse(t);if(typeof o!='object'||!o)throw 0;cfg=Object.assign(cfg,o);W('cfg',cfg);settings();toast('Ayarlar yüklendi')}catch(e){toast('Geçersiz ayar')}};
 $('#cl').onclick=()=>{if(confirm('Anahtarlar ve geçmiş bu telefondan silinsin mi?')){L.clear();location.reload()}}}
 function search(){sheet('<input id="q" type="search" placeholder="Film veya dizi ara" style="width:calc(100% - 52px)"><div id="qr" class="strip" style="flex-wrap:wrap;overflow:visible;padding:14px 0"></div>',1);let t;
 $('#q').oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{const q=e.target.value.trim();if(q.length<2)return;
 const r=await Promise.all(['movie','series'].map(ty=>G('https://v3-cinemeta.strem.io/catalog/'+ty+'/top/search='+encodeURIComponent(q)+'.json').catch(()=>({metas:[]}))));
 const m=[].concat(r[0].metas||[],r[1].metas||[]).filter(x=>x.poster).slice(0,30);$('#qr').innerHTML=m.length?strip(m):'<p class="m">Sonuç yok.</p>'},400)};
-$('#shc').onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)};$('#q').focus()}
+SC.onclick=e=>{const p=e.target.closest('.p');if(p)openD(p.dataset.k)};$('#q').focus()}
 document.addEventListener('click',e=>{const p=e.target.closest('#rows .p'),g=e.target.closest('[data-g]'),t=e.target.closest('.tab'),al=e.target.closest('[data-all]'),cc=e.target.closest('.cc'),cp=e.target.closest('[data-cp]'),cf=e.target.closest('[data-cf]'),gn=e.target.closest('[data-gn]');
-if(p)openD(p.dataset.k);else if(al)allv(+al.dataset.all);else if(gn)genre(+gn.dataset.gn);else if(cp){const x=reg[cp.dataset.cp];if(x.type=='movie')src(x.id,'movie',x,x.name);else openD(K(x))}else if(cf){cf.innerHTML=togF(reg[cf.dataset.cf])?IK+' Listemde':IA+' Listem'}else if(cc)openD(cc.dataset.k);
+if(p)openD(p.dataset.k);else if(al)allv(+al.dataset.all);else if(gn)genre(+gn.dataset.gn);else if(cp){const x=reg[cp.dataset.cp];if(x.type=='movie')src(x.id,'movie',x,x.name);else openD(K(x))}else if(cf){cf.innerHTML=togF(reg[cf.dataset.cf])?IK:IA}else if(cc)openD(cc.dataset.k);
 else if(g){const s=$('#r'+g.dataset.g);if(s)s.scrollIntoView({behavior:'smooth',block:'start'})}
 else if(t){tab=t.dataset.t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b===t));draw();cur=null;first()}});
 $('#bs').onclick=search;$('#bg').onclick=settings;
